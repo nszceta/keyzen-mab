@@ -227,13 +227,13 @@
         <div id="controls">
             <audio loop controls src="vendor/casino.opus"></audio>
             <div><input type="checkbox" id="use-confetti"><label for="use-confetti"> Enable confetti upon completing never seen before ngram</label></div>
-            <div><button onClick="reset_database_clicked();">Full Reset</button></div>
             <div>
                 <button id="load-ngrams-from-file-btn" onclick="document.getElementById('load-ngrams-from-file').click()">
                     Restrict ngram population (text file, one line, space separated)
                 </button>
                 <input type='file' id="load-ngrams-from-file" onchange="load_ngrams_from_file(this);" style="display:none">
             </div>
+            <div><button onClick="reset_database_clicked();">Full Reset</button></div>
             <div>
                 <button onclick="document.getElementById('load-db-from-file').click()">
                     Load saved database from file
