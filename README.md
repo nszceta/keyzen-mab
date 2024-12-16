@@ -11,7 +11,7 @@ This fork focuses on aggressively identifying your weakest ngram performance and
 
 ## Hosted Version
 If you're online, you could access it here:
-https://adamgradzki.com/keyzen3
+https://adamgradzki.com/keyzen-mab/
 
 
 ## Local Version/Installation

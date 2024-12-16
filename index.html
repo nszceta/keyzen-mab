@@ -1,272 +1,344 @@
 <!-- For license information please see KEYZEN-LICENSE.txt -->
 <!doctype html5>
 <html lang="en">
-
-<head>
+  <head>
     <title>KeyZen MAB by Adam Gradzki</title>
     <script src="vendor/math.js"></script>
     <script src="vendor/lodash.min.js"></script>
     <script src="vendor/jquery.min.js"></script>
-    <script src="vendor/corncob_lowercase.js"></script>
     <script src="vendor/jstat.min.js"></script>
     <script src="vendor/js-confetti.browser.js"></script>
-    <script src="layout_maps.js"></script>
-    <script src="keyzen.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <meta name="google" content="notranslate">
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <meta name="google" content="notranslate" />
 
     <!-- Yandex.Metrika counter -->
-    <script type="text/javascript" >
-        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-    
-        ym(91442096, "init", {
-            clickmap:true,
-            trackLinks:true,
-            accurateTrackBounce:true
-        });
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        (k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a);
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js",
+        "ym",
+      );
+
+      ym(91442096, "init", {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+      });
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/91442096" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/91442096"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
     <!-- /Yandex.Metrika counter -->
-    
+
     <style>
-        @font-face {
-            font-family: 'Ubuntu Monokz';
-            font-style: normal;
-            font-weight: normal;
-            src: local('Ubuntu Monokz'), local('UbuntuMono-Regular'), url('vendor/ubuntu-mono.woff') format('woff');
-        }
+      @font-face {
+        font-family: "Ubuntu Monokz";
+        font-style: normal;
+        font-weight: normal;
+        src:
+          local("Ubuntu Monokz"),
+          local("UbuntuMono-Regular"),
+          url("vendor/ubuntu-mono.woff") format("woff");
+      }
 
-        body {
-            background-image: url('brushed_alu.png');
-            font-family: 'Ubuntu Monokz', monospace;
-            padding: 0;
-            margin: 0;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            line-height: initial;
-        }
+      body {
+        background-image: url("brushed_alu.png");
+        font-family: "Ubuntu Monokz", monospace;
+        padding: 0;
+        margin: 0;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        line-height: initial;
+      }
 
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
+      #container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
 
-        #word {
-            color: #AAA;
-            position: absolute;
-            top: 230px;
-            margin-top: -64px;
-            height: 96px;
-            font-size: 96px;
-            width: 100%;
-            padding: 0px;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-            word-wrap: break-word;
-            text-shadow: 0px 2px 3px #000;
-        }
+      #word {
+        color: #aaa;
+        position: absolute;
+        top: 230px;
+        margin-top: -64px;
+        height: 96px;
+        font-size: 96px;
+        width: 100%;
+        padding: 0px;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        word-wrap: break-word;
+        text-shadow: 0px 2px 3px #000;
+      }
 
-        #level-chars,
-        #layout,
-        #header {
-            position: absolute;
-            font-size: 16px;
-            width: 95%;
-            text-align: right;
-            top: 16px;
-            right: 16px;
-            word-wrap: break-word;
-            font-weight: bold;
-            cursor: hand;
-            color: #AAA;
-        }
+      #level-chars,
+      #layout,
+      #header {
+        position: absolute;
+        font-size: 16px;
+        width: 95%;
+        text-align: right;
+        top: 16px;
+        right: 16px;
+        word-wrap: break-word;
+        font-weight: bold;
+        cursor: hand;
+        color: #aaa;
+      }
 
-        #header {
-            font-size: 14px;
-        }
+      #header {
+        font-size: 14px;
+      }
 
-        #controls {
-            font-size: 14px;
-            position: absolute;
-            z-index: 2;
-            top: 16px;
-            left: 10px;
-            font-weight: bold;
-            color: #AAA;
-        }
+      #controls {
+        font-size: 14px;
+        position: absolute;
+        z-index: 2;
+        top: 16px;
+        left: 10px;
+        font-weight: bold;
+        color: #aaa;
+      }
 
-        #controls>div>button {
-            margin-top: 10px;
-        }
+      #controls > div > button {
+        margin-top: 10px;
+      }
 
-        .currentChar {
-            border-bottom: 4px solid #f78d1d;
-        }
+      .currentChar {
+        border-bottom: 4px solid #f78d1d;
+      }
 
-        .errorChar {
-            color: #FF0000;
-        }
+      .errorChar {
+        color: #ff0000;
+      }
 
-        .correctedChar {
-            color: #FF8000;
-        }
+      .correctedChar {
+        color: #ff8000;
+      }
 
-        .goodChar {
-            color: #AAA;
-            text-shadow: 0px 1px 1px #FFF, 0px 2px 2px #FFF;
-        }
+      .goodChar {
+        color: #aaa;
+        text-shadow:
+          0px 1px 1px #fff,
+          0px 2px 2px #fff;
+      }
 
-        #current-item-info {
-            position: absolute;
-            top: calc(30% + 96px + 15% - 22px);
-            font-size: 16px;
-            right: 10%;
-            left: 10%;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: bold;
-            color: #6b6b6b;
-            text-align: center;
-        }
+      #current-item-info {
+        position: absolute;
+        top: calc(30% + 96px + 15% - 22px);
+        font-size: 16px;
+        right: 10%;
+        left: 10%;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: bold;
+        color: #6b6b6b;
+        text-align: center;
+      }
 
-        #progress-container {
-            position: absolute;
-            top: calc(30% + 96px + 15%);
-            font-size: 16px;
-            right: 10%;
-            left: 10%;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: bold;
-            color: #6b6b6b;
-        }
+      #progress-container {
+        position: absolute;
+        top: calc(30% + 96px + 15%);
+        font-size: 16px;
+        right: 10%;
+        left: 10%;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: bold;
+        color: #6b6b6b;
+      }
 
-        [type=number] {
-            background: transparent;
-        }
+      [type="number"] {
+        background: transparent;
+      }
 
-        [type=checkbox] {
-            transform: scale(0.5);
-        }
+      [type="checkbox"] {
+        transform: scale(0.5);
+      }
 
-        [type=checkbox],
-        label {
-            vertical-align: middle;
-        }
+      [type="checkbox"],
+      label {
+        vertical-align: middle;
+      }
 
-        audio {
-            margin-bottom: 10px;
-        }
+      audio {
+        margin-bottom: 10px;
+      }
 
-        .progress-item {
-            position: absolute;
-        }
+      .progress-item {
+        position: absolute;
+      }
 
-        .latency-stats {
-            position: absolute;
-            top: 0;
-            left: 25px;
-            font-size: 10px;
-        }
+      .latency-stats {
+        position: absolute;
+        top: 0;
+        left: 25px;
+        font-size: 10px;
+      }
 
-        fieldset {
-            display: inline-block;
-            margin-top: 1em;
-        }
+      fieldset {
+        display: inline-block;
+        margin-top: 1em;
+      }
 
+      #mobile-warning {
+        display: none;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1em;
+        z-index: 10;
+        background-color: white;
+      }
+
+      @media (max-width: 1000px) {
         #mobile-warning {
-            display: none;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 1em;
-            z-index: 10;
-            background-color: white;
+          display: block;
         }
+      }
 
-        @media (max-width: 1000px) {
-            #mobile-warning {
-                display: block;
-            }
-        }
+      #corpus-selector {
+        margin: 1rem 0 0 0;
+        width: 200px;
+      }
+      #corpus-status {
+        margin-left: 3px;
+        color: #666;
+        margin-top: 4px;
+      }
+      #corpus-status.error {
+        color: #f00;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div id='container'>
-        <div id="mobile-warning">
-            <p>
-                This website will not render correctly on small displays.
-            </p>
-            <p>
-                Please visit this site using a larger display.
-            </p>
-        </div>
-        <div id="header">
-            <header>KeyZen MAB by Adam Gradzki - Version 3.11</header>
-            <p>Delete a whole word at once with Control + Backspace</p>
-            <p>Data on the bottom visually represents expected ngram performance.</p>
-            <p>Lower values are worse. Actual internal bookkeeping is not shown.</p>
-            <p>Pressing the Enter key will advance to the next word and schedule visualization update.</p>
-        </div>
+  <body>
+    <div id="container">
+      <div id="mobile-warning">
+        <p>This website will not render correctly on small displays.</p>
+        <p>Please visit this site using a larger display.</p>
+      </div>
+      <div id="header">
+        <header>KeyZen MAB by Adam Gradzki - Version 4.0</header>
+        <p>Delete a whole word at once with Control + Backspace</p>
+        <p>
+          Data on the bottom visually represents expected ngram performance.
+        </p>
+        <p>Lower values are worse. Actual internal bookkeeping is not shown.</p>
+        <p>
+          Pressing the Enter key will advance to the next word and schedule
+          visualization update.
+        </p>
+      </div>
 
-        <div id="controls">
-            <audio loop controls src="vendor/casino.opus"></audio>
-            <div><input type="checkbox" id="use-confetti"><label for="use-confetti"> Enable confetti upon completing never seen before ngram</label></div>
-            <div>
-                <button id="load-ngrams-from-file-btn" onclick="document.getElementById('load-ngrams-from-file').click()">
-                    Restrict ngram population (text file, one line, space separated)
-                </button>
-                <input type='file' id="load-ngrams-from-file" onchange="load_ngrams_from_file(this);" style="display:none">
-            </div>
-            <div><button onClick="reset_database_clicked();">Full Reset</button></div>
-            <div>
-                <button onclick="document.getElementById('load-db-from-file').click()">
-                    Load saved database from file
-                </button>
-                <input type='file' id="load-db-from-file" onchange="load_db_from_file(this);" style="display:none">
-            </div>
-            <div>
-                <button id="save-db-to-file" type="button" onclick="download_object(data, 'keyzen3_database.txt', 'text/plain');">Save database to file</input> 
-            </div>
-            <div>
-                <fieldset>
-                    <legend>Select an ngram mode</legend>
-                    <div>
-                        <input type="radio" id="bigram" name="ngram" value="1">
-                        <label for="bigram">Monogram</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="bigram" name="ngram" value="2"
-                                checked>
-                        <label for="bigram">Bigram</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="trigram" name="ngram" value="3">
-                        <label for="trigram">Trigram</label>
-                    </div>
-                </fieldset>
-            </div>
+      <div id="controls">
+        <audio loop controls src="vendor/casino.opus"></audio>
+        <div>
+          <input type="checkbox" id="use-confetti" /><label for="use-confetti">
+            Enable confetti upon completing never seen before ngram</label
+          >
         </div>
+        <div>
+          <button
+            id="load-ngrams-from-file-btn"
+            onclick="document.getElementById('load-ngrams-from-file').click()"
+          >
+            Restrict ngram population (text file, one line, space separated)
+          </button>
+          <input
+            type="file"
+            id="load-ngrams-from-file"
+            onchange="load_ngrams_from_file(this);"
+            style="display: none"
+          />
+        </div>
+        <div>
+          <select id="corpus-selector"></select>
+          <div id="corpus-status"></div>
+        </div>
+        <div>
+          <button onClick="reset_database_clicked();">Full Reset</button>
+        </div>
+        <div>
+          <button
+            onclick="document.getElementById('load-db-from-file').click()"
+          >
+            Load saved database from file
+          </button>
+          <input
+            type="file"
+            id="load-db-from-file"
+            onchange="load_db_from_file(this);"
+            style="display: none"
+          />
+        </div>
+        <div>
+          <button
+            id="save-db-to-file"
+            type="button"
+            onclick="download_object(data, 'keyzen3_database.txt', 'text/plain');"
+          >
+            Save database to file
+          </button>
+        </div>
+        <div>
+          <fieldset>
+            <legend>Select an ngram mode</legend>
+            <div>
+              <input type="radio" id="bigram" name="ngram" value="1" />
+              <label for="bigram">Monogram</label>
+            </div>
+            <div>
+              <input type="radio" id="bigram" name="ngram" value="2" checked />
+              <label for="bigram">Bigram</label>
+            </div>
+            <div>
+              <input type="radio" id="trigram" name="ngram" value="3" />
+              <label for="trigram">Trigram</label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
 
-        <div id="current-item-info"></div>
-        <div id='word'></div>
-        <div id="progress-container"></div>
+      <div id="current-item-info">Load a corpus to get started</div>
+      <div id="word"></div>
+      <div id="progress-container"></div>
     </div>
-</body>
-
+  </body>
+  <script src="keyzen.js"></script>
 </html>
