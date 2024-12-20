@@ -3,7 +3,7 @@
 // We define them here to make them easily accessible and to avoid polluting the global namespace.
 var MAX_NGRAM_SIZE = 3; // Maximum size of character sequences to track
 var DATA_CURRENT_VERSION = 3; // Database schema version
-var LATENCY_LIMIT_MILLIS = 500; // Maximum typing latency to consider
+var LATENCY_LIMIT_MILLIS = 1000; // Maximum typing latency to consider
 var C = 20; // Constant for beta distribution parameter scaling
 
 // Global state variables to store typing statistics, keyboard layouts, audio feedback, and more.
@@ -23,6 +23,96 @@ var current_corpus_ngrams = new Set(); // Ngrams present in current corpus
 var corpus_selector = document.getElementById("corpus-selector");
 // Get the corpus status element
 var corpus_status_div = document.getElementById("corpus-status");
+// Diacritic buffer
+var combining_char_buffer = "";
+// Timeout for combining character sequences (in milliseconds)
+var COMBINING_CHAR_TIMEOUT = LATENCY_LIMIT_MILLIS;
+// Timestamp of last combining character input
+var last_combining_timestamp;
+var compositionInProgress = false;
+var deadKeyBuffer = "";
+var diacriticMap = {
+  // Acute accent (é, á, í, ó, ú)
+  Quote: {
+    e: "é",
+    a: "á",
+    i: "í",
+    o: "ó",
+    u: "ú",
+    E: "É",
+    A: "Á",
+    I: "Í",
+    O: "Ó",
+    U: "Ú",
+  },
+  // Tilde (ñ, ã, õ)
+  Semicolon: {
+    n: "ñ",
+    a: "ã",
+    o: "õ",
+    N: "Ñ",
+    A: "Ã",
+    O: "Õ",
+  },
+  // Umlaut/diaeresis (ä, ë, ï, ö, ü)
+  BracketLeft: {
+    a: "ä",
+    e: "ë",
+    i: "ï",
+    o: "ö",
+    u: "ü",
+    A: "Ä",
+    E: "Ë",
+    I: "Ï",
+    O: "Ö",
+    U: "Ü",
+  },
+  // Circumflex (â, ê, î, ô, û)
+  Digit6: {
+    a: "â",
+    e: "ê",
+    i: "î",
+    o: "ô",
+    u: "û",
+    A: "Â",
+    E: "Ê",
+    I: "Î",
+    O: "Ô",
+    U: "Û",
+  },
+  // Grave accent (à, è, ì, ò, ù)
+  Backquote: {
+    a: "à",
+    e: "è",
+    i: "ì",
+    o: "ò",
+    u: "ù",
+    A: "À",
+    E: "È",
+    I: "Ì",
+    O: "Ò",
+    U: "Ù",
+  },
+  // Cedilla (ç)
+  Comma: {
+    c: "ç",
+    C: "Ç",
+  },
+};
+
+
+// Add a new object to map dead keys to their corresponding Unicode code points
+var deadkeyToUnicode = {
+  "Dead" : 0x0300, // Grave accent
+  "Quote" : 0x0301, // Acute accent
+  "Semicolon" : 0x0303, // Tilde
+  "BracketLeft" : 0x0308, // Diaeresis (Umlaut)
+  "Digit6" : 0x0302, // Circumflex
+  "Backquote" : 0x0300, // Grave accent
+  "Comma" : 0x0327, // Cedilla
+  // Add more dead keys as needed
+};
+
 
 // Initialize Web Worker for character statistics calculation.
 // This worker is used to perform computationally intensive tasks in the background,
@@ -217,102 +307,131 @@ function get_ngram_size() {
   return +document.querySelector('input[name="ngram"]:checked').value;
 }
 
-// Function to convert a key code to a character.
-// This function is used to convert a key code to a character.
-function char_to_key(e) {
-  // Convert the key code to a character using the fromCharCode method.
-  // This returns the character represented by the key code.
-  return String.fromCharCode(e.which);
-}
 
-// Function to handle key down events.
-// This function is used to handle key down events and update the typing statistics accordingly.
+
+/**
+* Handles keyboard input events including dead keys and diacritics
+* @param {KeyboardEvent} e - The keyboard event
+*/
 function keydownHandler(e) {
-  // Check if the control key is pressed and the backspace key is pressed.
-  // This checks if the user is trying to reset the typing statistics.
-  if (e.ctrlKey && e.key === "Backspace") {
-    // Prevent the default behavior of the backspace key.
-    // This prevents the browser from navigating back when the backspace key is pressed.
+  // Handle dead keys for diacritics
+  if (e.key === "Dead") {
+    // Prevent default behavior
     e.preventDefault();
-    // Reset the ngram buffer and key pressed timestamp.
-    // This clears the ngram buffer and resets the latency measurement.
+    // Store the dead key code
+    deadKeyBuffer = e.code;
+    compositionInProgress = true;
+    return;
+  }
+
+  // Handle composition of diacritics with base characters
+  if (compositionInProgress && e.key.length === 1) {
+    // Prevent default behavior
+    e.preventDefault();
+    let composedChar = "";
+
+    // Approach 1: Using Diacritic Map (Limited Coverage)
+    if (diacriticMap[deadKeyBuffer] && diacriticMap[deadKeyBuffer][e.key]) {
+      composedChar = diacriticMap[deadKeyBuffer][e.key];
+    } else {
+      // Approach 2: Unicode Normalization (Broader Coverage)
+      try {
+        const combined = deadKeyBuffer + e.key;
+        const normalized = combined.normalize("NFC");
+        if (normalized.length < combined.length) {
+          composedChar = normalized;
+        } else {
+          // Handle cases where normalization doesn't combine characters
+          // e.g., typing 'u' after "'" for 'ú'
+          if (deadkeyToUnicode[deadKeyBuffer]) {
+            const unicodePoint = deadkeyToUnicode[deadKeyBuffer];
+            composedChar = String.fromCodePoint(unicodePoint) + e.key;
+            composedChar = composedChar.normalize("NFC");
+          }
+        }
+      } catch (error) {
+        console.warn("Character normalization failed during composition:", error);
+      }
+    }
+
+    if (composedChar) {
+      const composedEvent = new KeyboardEvent("keydown", {
+        key: composedChar,
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      });
+      keyHandler(composedEvent);
+    }
+
+    compositionInProgress = false;
+    deadKeyBuffer = "";
+    return;
+  }
+
+  // Handle ctrl+backspace for word reset
+  if (e.ctrlKey && e.key === "Backspace") {
+    // Prevent default behavior of the key combination
+    e.preventDefault();
+    // Reset the ngram buffer, key pressed timestamp, word index, keys hit, and word errors
     ngram_buf_main = [];
     key_pressed_timestamp = null;
-    // Reset the word index and keys hit.
-    // This clears the word index and keys hit to start a new session.
     data.word_index = 0;
     data.keys_hit = "";
-    // Reset the word errors.
-    // This clears the word errors to start a new session.
     data.word_errors = {};
-    // Render the word.
-    // This updates the UI with the new word.
+    // Render the word again to update the UI
     render_word();
     return;
   }
-  // Check if the backspace key is pressed.
-  // This checks if the user is trying to delete a character.
+
+  // Handle regular backspace
   if (e.key === "Backspace") {
-    // Prevent the default behavior of the backspace key.
-    // This prevents the browser from navigating back when the backspace key is pressed.
+    // Prevent default behavior of the backspace key
     e.preventDefault();
-    // Reset the ngram buffer and key pressed timestamp.
-    // This clears the ngram buffer and resets the latency measurement.
+    // Reset the ngram buffer and key pressed timestamp
     ngram_buf_main = [];
     key_pressed_timestamp = null;
-    // Play the correct audio sample.
-    // This plays the correct audio sample when the backspace key is pressed.
+    // Play the correct audio sample for backspace
     play_key_audio_sample("correct", "Backspace");
-    // Check if the word index is greater than 0.
-    // This checks if there are characters to delete.
+    // Check if the word index is greater than 0
     if (data.word_index > 0) {
-      // Decrement the word index.
-      // This moves the word index back by one character.
+      // Decrement the word index
       data.word_index -= 1;
-      // Remove the last character from the keys hit.
-      // This removes the last character from the keys hit to reflect the deletion.
+      // Remove the last character from the keys hit
       data.keys_hit = data.keys_hit.slice(0, -1);
-      // Render the word.
-      // This updates the UI with the new word.
+      // Render the word again to update the UI
       render_word();
     }
     return;
   }
-  // Check if the enter key is pressed or the space key is pressed and the word index is greater than or equal to the word length.
-  // This checks if the user is trying to submit the word.
-  else if (
+
+  // Handle word completion
+  if (
     e.key === "Enter" ||
     (e.key === " " && data.word_index >= data.word.length)
   ) {
-    // Prevent the default behavior of the enter key or space key.
-    // This prevents the browser from submitting the form when the enter key or space key is pressed.
+    // Prevent default behavior of the enter key or space bar
     e.preventDefault();
-    // Reset the ngram buffer.
-    // This clears the ngram buffer to start a new session.
+    // Reset the ngram buffer
     ngram_buf_main = [];
-    // Play the correct audio sample.
-    // This plays the correct audio sample when the enter key or space key is pressed.
+    // Play the correct audio sample for enter
     play_key_audio_sample("correct", "Enter");
-    // Generate a new word.
-    // This starts a new typing practice session with a new word.
+    // Call the next_word function to generate a new word
     next_word();
     return;
   }
-  // Check if the dead key is pressed.
-  // This checks if the user is trying to press a dead key.
-  if (e.key === "Dead") {
-    // Prevent the default behavior of the dead key.
-    // This prevents the browser from navigating back when the dead key is pressed.
-    e.preventDefault();
-    // Handle the key press.
-    // This handles the key press and updates the typing statistics accordingly.
-    keyHandler(e);
-    // Set the key presses to false.
-    // This sets the key presses to false to reflect the key release.
-    keyPresses[e.code] = false;
+
+  // Handle function keys and keyboard shortcuts
+  if (e.key.startsWith("F") || e.ctrlKey || e.altKey || e.metaKey) {
     return;
   }
+
+  // For regular single-character keys, only prevent default if it's a printable character
+  if (e.key.length === 1) {
+    keyHandler(e);
+  }
 }
+
 
 // Function to handle key up events.
 // This function is used to handle key up events and update the typing statistics accordingly.
@@ -391,111 +510,103 @@ function update_score(item, reward) {
   data.item_performance[item].seen += 1;
 }
 
-// Function to handle key presses.
-// This function is used to handle key presses and update the typing statistics accordingly.
+
+/**
+ * Handles keypress events for typing practice
+ * Processes both regular characters and combining character sequences in a language-agnostic way
+ * @param {KeyboardEvent} e - The keyboard event
+ */
 function keyHandler(e) {
-  // Check if the data word is null or the key presses are not null or the word index is greater than or equal to the word length.
-  // This checks if the data word is null or the key presses are not null or the word index is greater than or equal to the word length to prevent handling the key press.
+  // Exit early if no word is set, key is already pressed, or we're at the end of the word
   if (
     _.isNil(data.word) ||
     keyPresses[e.code] ||
     data.word_index >= data.word.length
-  )
+  ) {
     return;
-  // Set the key presses to true.
-  // This sets the key presses to true to reflect the key press.
+  }
+
+  // Mark this key as pressed
   keyPresses[e.code] = true;
-  // Get the key character.
-  // This gets the key character to update the typing statistics.
-  var key = char_to_key(e);
-  // Append the key character to the keys hit.
-  // This appends the key character to the keys hit to reflect the key press.
+
+  // Get current key and timestamp
+  var key = e.key;
+  const current_time = Date.now();
+
+  // **Enhanced Diacritic Handling**
+  if (combining_char_buffer) {
+    try {
+      // Attempt to combine the buffered character with the current key
+      const combined = combining_char_buffer + e.key;
+      const normalized = combined.normalize("NFC");
+      if (normalized.length < combined.length) {
+        key = normalized;
+        combining_char_buffer = ""; // Clear buffer on successful combination
+      }
+    } catch (error) {
+      console.warn("Character normalization failed:", error);
+    }
+  } else if (e.key.length === 1 && /[^\w\s]/.test(e.key)) {
+    // Store potential combining characters for next key press
+    combining_char_buffer = key;
+    last_combining_timestamp = Date.now();
+    return;
+  }
+
+  // Add the processed key to the typing history
   data.keys_hit += key;
-  // Get the desired letter.
-  // This gets the desired letter to compare with the key character.
+
+  // Get the target character from the current word
   const desired_letter = data.word[data.word_index];
-  // Initialize a flag to indicate if the key press is correct.
-  // This initializes a flag to indicate if the key press is correct.
   let is_correct = false;
-  // Check if the key character is equal to the desired letter.
-  // This checks if the key character is equal to the desired letter to determine if the key press is correct.
-  if (key == desired_letter) {
-    // Check if the word errors at the current index is not null.
-    // This checks if the word errors at the current index is not null to update the word errors.
+
+  // Compare the normalized forms of the input and target characters
+  // This ensures proper matching regardless of how the characters are composed
+  if (key.normalize("NFC") === desired_letter.normalize("NFC")) {
+    // Handle correct input
     if (data.word_errors[data.word_index]) {
-      // Update the word errors at the current index to corrected char.
-      // This updates the word errors at the current index to corrected char to reflect the correction.
       data.word_errors[data.word_index] = "correctedChar";
     }
-    // Play the correct audio sample.
-    // This plays the correct audio sample when the key press is correct.
     play_key_audio_sample("correct", key);
-    // Set the is correct flag to true.
-    // This sets the is correct flag to true to reflect the correct key press.
     is_correct = true;
-  }
-  // Check if the key character is not equal to the desired letter.
-  // This checks if the key character is not equal to the desired letter to determine if the key press is incorrect.
-  else {
-    // Play the mistake audio sample.
-    // This plays the mistake audio sample when the key press is incorrect.
+  } else {
+    // Handle incorrect input
     play_key_audio_sample("mistake", key);
-    // Update the word errors at the current index to true.
-    // This updates the word errors at the current index to true to reflect the error.
     data.word_errors[data.word_index] = true;
   }
-  // Append the desired letter to the ngram buffer.
-  // This appends the desired letter to the ngram buffer to reflect the key press.
-  ngram_buf_main.push(desired_letter);
-  // Check if the key pressed timestamp is not null.
-  // This checks if the key pressed timestamp is not null to calculate the latency.
-  if (key_pressed_timestamp !== null) {
-    // Calculate the latency.
-    // This calculates the latency by subtracting the key pressed timestamp from the current time.
+
+  // Add the desired letter to the ngram buffer for statistics
+  ngram_buf_main.push(desired_letter.normalize("NFC")); // Normalize for consistency
+
+  // Handle typing statistics and latency calculations
+  if (key_pressed_timestamp!== null) {
     const latency = Date.now() - key_pressed_timestamp;
-    // Update the key pressed timestamp.
-    // This updates the key pressed timestamp to reflect the current time.
     key_pressed_timestamp = Date.now();
-    // Calculate the reward.
-    // This calculates the reward based on the latency and correctness of the key press.
     const reward = item_reward(latency, is_correct);
-    // Iterate through the ngram sizes.
-    // This iterates through the ngram sizes to update the score for each ngram.
+    // Update statistics for all ngram sizes
     for (let size = 1; size <= MAX_NGRAM_SIZE; size++) {
-      // Check if the ngram buffer length is greater than or equal to the ngram size.
-      // This checks if the ngram buffer length is greater than or equal to the ngram size to update the score for the ngram.
       if (ngram_buf_main.length >= size) {
-        // Get the ngram.
-        // This gets the ngram by slicing the ngram buffer to the desired size.
         const ngram = ngram_buf_main.slice(-size).join("");
-        // Update the score for the ngram.
-        // This updates the score for the ngram based on the reward.
         update_score(ngram, reward);
       }
     }
   } else {
-    // Update the key pressed timestamp.
-    // This updates the key pressed timestamp to reflect the current time.
     key_pressed_timestamp = Date.now();
   }
-  // Increment the word index.
-  // This increments the word index to reflect the key press.
+
+  // Move to next character
   data.word_index += 1;
-  // Check if the word index is greater than or equal to the word length and there are no word errors.
-  // This checks if the word index is greater than or equal to the word length and there are no word errors to generate a new word.
+
+  // Check if word is completed correctly
   if (
     data.word_index >= data.word.length &&
-    !Object.values(data.word_errors).includes(true)
+   !Object.values(data.word_errors).includes(true)
   ) {
-    // Play the next word audio sample.
-    // This plays the next word audio sample when the word is completed correctly.
     play_next_word_audio_sample();
-    // Generate a new word.
-    // This generates a new word to start a new typing practice session.
     next_word();
   }
-  // Render the word.
-  // This renders the word to update the UI with the new word.
+
+  // Update the display
   render_word();
 }
 
@@ -699,102 +810,73 @@ async function update_character_stats() {
   });
 }
 
-// Function to render the word.
-// This function is used to render the word to update the UI with the current word.
+/**
+ * Renders the current word and typing progress in the UI
+ * Handles Unicode characters and combining marks
+ */
 function render_word() {
-  // Check if the data word is null.
-  // This checks if the data word is null to prevent rendering the word.
   if (_.isNil(data.word)) {
     return;
   }
-  // Initialize a variable to store the word HTML.
-  // This initializes a variable to store the word HTML to render the word.
+
   var word = "";
-  // Iterate through the word characters.
-  // This iterates through the word characters to render the word.
-  for (let i = 0; i < data.word.length; i++) {
-    // Initialize a variable to store the character class.
-    // This initializes a variable to store the character class to render the character.
+  // Normalize the word and convert to array of characters
+  let chars = Array.from(data.word.normalize());
+
+  // Process each character
+  for (let i = 0; i < chars.length; i++) {
     let sclass = "normalChar";
-    // Check if the character index is greater than the word index.
-    // This checks if the character index is greater than the word index to render the character as normal.
+
+    // Determine character state
     if (i > data.word_index) {
       sclass = "normalChar";
-    }
-    // Check if the character index is equal to the word index.
-    // This checks if the character index is equal to the word index to render the character as current.
-    else if (i == data.word_index) {
+    } else if (i == data.word_index) {
       sclass = "currentChar";
-    }
-    // Check if the word errors at the character index is not null.
-    // This checks if the word errors at the character index is not null to render the character as an error.
-    else if (data.word_errors[i]) {
-      // Get the error class.
-      // This gets the error class to render the character as an error.
+    } else if (data.word_errors[i]) {
       const errorClass = data.word_errors[i];
-      // Update the character class.
-      // This updates the character class to render the character as an error.
       sclass = typeof errorClass === "string" ? errorClass : "errorChar";
-    }
-    // Check if the character index is less than the word index and the word errors at the character index is null.
-    // This checks if the character index is less than the word index and the word errors at the character index is null to render the character as good.
-    else {
+    } else {
       sclass = "goodChar";
     }
-    // Append the character HTML to the word HTML.
-    // This appends the character HTML to the word HTML to render the word.
+
+    // Create character span
     word += "<span class='" + sclass + "'>";
-    // Check if the character is a space.
-    // This checks if the character is a space to render it as a non-breaking space.
-    if (data.word[i] == " ") {
-      word += "&#9141;";
+
+    // Handle special character display
+    if (chars[i] == " ") {
+      word += "&#9141;"; // Use visible space character
+    } else {
+      // Safely escape and display the character
+      const span = document.createElement("span");
+      span.textContent = chars[i];
+      word += span.innerHTML;
     }
-    // Check if the character is an ampersand.
-    // This checks if the character is an ampersand to render it as an HTML entity.
-    else if (data.word[i] == "&") {
-      word += "&amp;";
-    }
-    // Render the character as text.
-    // This renders the character as text to display it in the UI.
-    else {
-      word += data.word[i];
-    }
-    // Close the span element.
-    // This closes the span element to complete the character HTML.
+
     word += "</span>";
   }
-  // Initialize a variable to store the keys hit HTML.
-  // This initializes a variable to store the keys hit HTML to render the keys hit.
+
+  // Render typed characters
   var keys_hit = "<span class='keys-hit'>";
-  // Iterate through the keys hit.
-  // This iterates through the keys hit to render the keys hit.
-  for (var d in data.keys_hit) {
-    // Check if the key is a space.
-    // This checks if the key is a space to render it as a non-breaking space.
-    if (data.keys_hit[d] == " ") {
+  let typed_chars = Array.from(data.keys_hit);
+
+  for (let char of typed_chars) {
+    if (char == " ") {
       keys_hit += "&#9141;";
-    }
-    // Check if the key is an ampersand.
-    // This checks if the key is an ampersand to render it as an HTML entity.
-    else if (data.keys_hit[d] == "&") {
-      keys_hit += "&amp;";
-    }
-    // Render the key as text.
-    // This renders the key as text to display it in the UI.
-    else {
-      keys_hit += data.keys_hit[d];
+    } else {
+      const span = document.createElement("span");
+      span.textContent = char;
+      keys_hit += span.innerHTML;
     }
   }
-  // Iterate through the remaining characters.
-  // This iterates through the remaining characters to render the remaining characters as non-breaking spaces.
-  for (var i = data.word_index; i < data.word.length; i++) {
+
+  // Fill remaining space
+  for (var i = data.word_index; i < chars.length; i++) {
     keys_hit += "&nbsp;";
   }
-  // Close the span element.
-  // This closes the span element to complete the keys hit HTML.
+
   keys_hit += "</span>";
-  // Update the word HTML element.
-  // This updates the word HTML element to render the word and keys hit.
+
+  // Update the DOM
   $("#word").html(word + "<br>" + keys_hit);
 }
 
@@ -970,7 +1052,7 @@ function initialize_ngram_db(corpus) {
         if (!(ngram in data.item_performance)) {
           data.item_performance[ngram] = {
             alpha: 1, // Initial alpha parameter for beta distribution
-            beta: 1, // Initial beta parameter for beta distribution
+            beta: 0.001, // Initial beta parameter for beta distribution
             seen: 0, // Counter for how many times this ngram has been practiced
           };
         }
@@ -979,38 +1061,42 @@ function initialize_ngram_db(corpus) {
   }
 }
 
-// Function to convert a word to ngrams.
-// This function is used to convert a word to ngrams to initialize the ngram database.
+/**
+ * Converts a word into its constituent ngrams of specified size
+ * Handles Unicode combining characters correctly
+ * @param {string} word - The input word
+ * @param {number} ngram_size - The size of ngrams to generate
+ * @returns {string[]} Array of ngrams
+ */
 function word_to_ngrams(word, ngram_size) {
-  // Initialize an array to store the ngrams.
-  // This initializes an array to store the ngrams to convert the word to ngrams.
+  // Normalize the word to ensure consistent handling of combining characters
+  word = word.normalize();
+
+  // Initialize array to store ngrams
   let ngrams_buf = [];
-  // Initialize an array to store the current ngram.
-  // This initializes an array to store the current ngram to convert the word to ngrams.
+
+  // Convert word to array of characters, properly handling Unicode
+  let chars = Array.from(word);
+
+  // Buffer for building ngrams
   let ngram_buf = [];
-  // Iterate through the word characters.
-  // This iterates through the word characters to convert the word to ngrams.
-  for (let i = 0; i < word.length; i++) {
-    // Add the character to the current ngram.
-    // This adds the character to the current ngram to convert the word to ngrams.
-    ngram_buf.push(word[i]);
-    // Check if the current ngram size is equal to the ngram size.
-    // This checks if the current ngram size is equal to the ngram size to add the ngram to the ngrams array.
+
+  // Process each character
+  for (let i = 0; i < chars.length; i++) {
+    ngram_buf.push(chars[i]);
+
+    // When we reach the desired ngram size
     if (ngram_buf.length == ngram_size) {
-      // Add the ngram to the ngrams array.
-      // This adds the ngram to the ngrams array to convert the word to ngrams.
       ngrams_buf.push(ngram_buf.join(""));
-    } else if (ngram_buf.length >= ngram_size) {
-      // Update the current ngram by removing the first character.
-      // This updates the current ngram by removing the first character to convert the word to ngrams.
+    }
+    // When we have more characters than needed
+    else if (ngram_buf.length >= ngram_size) {
+      // Remove first character and keep last ngram_size characters
       ngram_buf = ngram_buf.slice(1, ngram_size + 1);
-      // Add the ngram to the ngrams array.
-      // This adds the ngram to the ngrams array to convert the word to ngrams.
       ngrams_buf.push(ngram_buf.join(""));
     }
   }
-  // Return the ngrams array.
-  // This returns the ngrams array to convert the word to ngrams.
+
   return ngrams_buf;
 }
 
