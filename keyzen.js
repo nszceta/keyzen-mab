@@ -228,6 +228,26 @@ function char_to_key(e) {
 // Function to handle key down events.
 // This function is used to handle key down events and update the typing statistics accordingly.
 function keydownHandler(e) {
+  // Handle space bar
+  if (e.key === " ") {
+    e.preventDefault(); // Prevent spacebar from scrolling the page
+
+    // Check if at the end of the word and the word is correct
+    if (
+      data.word_index >= data.word.length &&
+      !Object.values(data.word_errors).includes(true)
+    ) {
+      // Generate a new word only if auto-advance is disabled
+      if (!document.getElementById("auto-advance").checked) {
+        next_word();
+      }
+    } else if (data.word_index < data.word.length) {
+      // If not at the end of the word, handle as a regular key press
+      keyHandler(e);
+    }
+    return;
+  }
+
   // Check if the control key is pressed and the backspace key is pressed.
   // This checks if the user is trying to reset the typing statistics.
   if (e.ctrlKey && e.key === "Backspace") {
@@ -280,22 +300,23 @@ function keydownHandler(e) {
   }
   // Check if the enter key is pressed or the space key is pressed and the word index is greater than or equal to the word length.
   // This checks if the user is trying to submit the word.
-  else if (
-    e.key === "Enter" ||
-    (e.key === " " && data.word_index >= data.word.length)
-  ) {
+  else if (e.key === "Enter" || e.key === " ") {
     // Prevent the default behavior of the enter key or space key.
     // This prevents the browser from submitting the form when the enter key or space key is pressed.
     e.preventDefault();
     // Reset the ngram buffer.
     // This clears the ngram buffer to start a new session.
     ngram_buf_main = [];
-    // Play the correct audio sample.
-    // This plays the correct audio sample when the enter key or space key is pressed.
-    play_key_audio_sample("correct", "Enter");
-    // Generate a new word.
-    // This starts a new typing practice session with a new word.
-    next_word();
+
+    // Advance to the next correct word if there are no mistakes
+    if (
+      (data.word_index >= data.word.length &&
+        !Object.values(data.word_errors).includes(true)) ||
+      data.word_index === 0
+    ) {
+      // If at the end of the word and the word is correct, generate a new word
+      next_word();
+    }
     return;
   }
   // Check if the dead key is pressed.
@@ -485,7 +506,8 @@ function keyHandler(e) {
   // This checks if the word index is greater than or equal to the word length and there are no word errors to generate a new word.
   if (
     data.word_index >= data.word.length &&
-    !Object.values(data.word_errors).includes(true)
+    !Object.values(data.word_errors).includes(true) &&
+    document.getElementById("auto-advance").checked
   ) {
     // Play the next word audio sample.
     // This plays the next word audio sample when the word is completed correctly.
@@ -507,8 +529,10 @@ function next_word() {
   if (
     !_.isNil(data.word_errors) &&
     Object.values(data.word_errors).includes(true)
-  )
+  ) {
     return;
+  }
+
   // Initialize a maximum number of retries.
   // This initializes a maximum number of retries to prevent infinite loops.
   const MAX_RETRIES = 3;
@@ -575,6 +599,8 @@ function next_word() {
   // Save the data.
   // This saves the data to persist the typing statistics.
   save();
+  // Play the next word sound sample
+  play_next_word_audio_sample();
 }
 
 // Function to save the data.
