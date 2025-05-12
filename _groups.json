@@ -1,0 +1,952 @@
+[
+    {
+      "name": "Afrikaans",
+      "languages": [
+        "afrikaans",
+        "afrikaans_10k",
+        "afrikaans_1k"
+      ]
+    },
+    {
+      "name": "Albanian",
+      "languages": [
+        "albanian",
+        "albanian_1k"
+      ]
+    },
+    {
+      "name": "Amharic",
+      "languages": [
+        "amharic",
+        "amharic_1k",
+        "amharic_5k"
+      ]
+    },
+    {
+      "name": "Arabic",
+      "languages": [
+        "arabic",
+        "arabic_10k",
+        "arabic_egypt",
+        "arabic_egypt_1k"
+      ]
+    },
+    {
+      "name": "Armenian",
+      "languages": [
+        "armenian",
+        "armenian_1k",
+        "armenian_western",
+        "armenian_western_1k"
+      ]
+    },
+    {
+      "name": "Azerbaijani",
+      "languages": [
+        "azerbaijani",
+        "azerbaijani_1k"
+      ]
+    },
+    {
+      "name": "Bangla",
+      "languages": [
+        "bangla",
+        "bangla_10k",
+        "bangla_letters"
+      ]
+    },
+    {
+      "name": "Bashkir",
+      "languages": [
+        "bashkir"
+      ]
+    },
+    {
+      "name": "Belarusian",
+      "languages": [
+        "belarusian",
+        "belarusian_100k",
+        "belarusian_10k",
+        "belarusian_1k",
+        "belarusian_25k",
+        "belarusian_50k",
+        "belarusian_5k",
+        "belarusian_lacinka",
+        "belarusian_lacinka_1k"
+      ]
+    },
+    {
+      "name": "Bosnian",
+      "languages": [
+        "bosnian",
+        "bosnian_4k"
+      ]
+    },
+    {
+      "name": "Bulgarian",
+      "languages": [
+        "bulgarian",
+        "bulgarian_latin"
+      ]
+    },
+    {
+      "name": "Catalan",
+      "languages": [
+        "catalan",
+        "catalan_1k"
+      ]
+    },
+    {
+      "name": "Chinese",
+      "languages": [
+        "chinese_simplified",
+        "chinese_simplified_10k",
+        "chinese_simplified_1k",
+        "chinese_simplified_50k",
+        "chinese_simplified_5k",
+        "chinese_traditional"
+      ]
+    },
+    {
+      "name": "Code",
+      "languages": [
+        "code_arduino",
+        "code_assembly",
+        "code_bash",
+        "code_brainfck",
+        "code_c",
+        "code_c#",
+        "code_c++",
+        "code_cobol",
+        "code_common_lisp",
+        "code_css",
+        "code_dart",
+        "code_elixir",
+        "code_fortran",
+        "code_fsharp",
+        "code_gdscript",
+        "code_gdscript_2",
+        "code_go",
+        "code_haskell",
+        "code_html",
+        "code_java",
+        "code_javascript",
+        "code_javascript_1k",
+        "code_javascript_react",
+        "code_jule",
+        "code_julia",
+        "code_kotlin",
+        "code_latex",
+        "code_lua",
+        "code_luau",
+        "code_matlab",
+        "code_nim",
+        "code_nix",
+        "code_odin",
+        "code_ook",
+        "code_opencl",
+        "code_pascal",
+        "code_perl",
+        "code_php",
+        "code_powershell",
+        "code_python",
+        "code_python_1k",
+        "code_python_2k",
+        "code_python_5k",
+        "code_r",
+        "code_r_2k",
+        "code_rockstar",
+        "code_ruby",
+        "code_rust",
+        "code_scala",
+        "code_sql",
+        "code_swift",
+        "code_systemverilog",
+        "code_typescript",
+        "code_typst",
+        "code_v",
+        "code_vim",
+        "code_vimscript",
+        "code_visual_basic",
+        "code_zig"
+      ]
+    },
+    {
+      "name": "Croatian",
+      "languages": [
+        "croatian",
+        "croatian_1k"
+      ]
+    },
+    {
+      "name": "Czech",
+      "languages": [
+        "czech",
+        "czech_10k",
+        "czech_1k"
+      ]
+    },
+    {
+      "name": "Danish",
+      "languages": [
+        "danish",
+        "danish_10k",
+        "danish_1k"
+      ]
+    },
+    {
+      "name": "Dutch",
+      "languages": [
+        "dutch",
+        "dutch_10k",
+        "dutch_1k"
+      ]
+    },
+    {
+      "name": "English",
+      "languages": [
+        "english",
+        "english_10k",
+        "english_1k",
+        "english_25k",
+        "english_450k",
+        "english_5k",
+        "english_commonly_misspelled",
+        "english_contractions",
+        "english_doubleletter",
+        "english_medical",
+        "english_old",
+        "english_shakespearean"
+      ]
+    },
+    {
+      "name": "Esperanto",
+      "languages": [
+        "esperanto",
+        "esperanto_10k",
+        "esperanto_1k",
+        "esperanto_25k",
+        "esperanto_36k",
+        "esperanto_h_sistemo",
+        "esperanto_h_sistemo_10k",
+        "esperanto_h_sistemo_1k",
+        "esperanto_h_sistemo_25k",
+        "esperanto_h_sistemo_36k",
+        "esperanto_x_sistemo",
+        "esperanto_x_sistemo_10k",
+        "esperanto_x_sistemo_1k",
+        "esperanto_x_sistemo_25k",
+        "esperanto_x_sistemo_36k"
+      ]
+    },
+    {
+      "name": "Estonian",
+      "languages": [
+        "estonian",
+        "estonian_10k",
+        "estonian_1k",
+        "estonian_5k"
+      ]
+    },
+    {
+      "name": "Euskera",
+      "languages": [
+        "euskera"
+      ]
+    },
+    {
+      "name": "Filipino",
+      "languages": [
+        "filipino",
+        "filipino_1k"
+      ]
+    },
+    {
+      "name": "Finnish",
+      "languages": [
+        "finnish",
+        "finnish_10k",
+        "finnish_1k"
+      ]
+    },
+    {
+      "name": "French",
+      "languages": [
+        "french",
+        "french_10k",
+        "french_1k",
+        "french_2k",
+        "french_600k",
+        "french_bitoduc"
+      ]
+    },
+    {
+      "name": "Frisian",
+      "languages": [
+        "frisian",
+        "frisian_1k"
+      ]
+    },
+    {
+      "name": "Friulian",
+      "languages": [
+        "friulian"
+      ]
+    },
+    {
+      "name": "Galician",
+      "languages": [
+        "galician"
+      ]
+    },
+    {
+      "name": "Georgian",
+      "languages": [
+        "georgian"
+      ]
+    },
+    {
+      "name": "German",
+      "languages": [
+        "german",
+        "german_10k",
+        "german_1k",
+        "german_250k"
+      ]
+    },
+    {
+      "name": "Greek",
+      "languages": [
+        "greek",
+        "greek_10k",
+        "greek_1k",
+        "greek_25k",
+        "greek_5k"
+      ]
+    },
+    {
+      "name": "Greeklish",
+      "languages": [
+        "greeklish",
+        "greeklish_10k",
+        "greeklish_1k",
+        "greeklish_25k",
+        "greeklish_5k"
+      ]
+    },
+    {
+      "name": "Gujarati",
+      "languages": [
+        "gujarati",
+        "gujarati_1k"
+      ]
+    },
+    {
+      "name": "Hausa",
+      "languages": [
+        "hausa",
+        "hausa_1k"
+      ]
+    },
+    {
+      "name": "Hebrew",
+      "languages": [
+        "hebrew",
+        "hebrew_10k",
+        "hebrew_1k",
+        "hebrew_5k"
+      ]
+    },
+    {
+      "name": "Hindi",
+      "languages": [
+        "hindi",
+        "hindi_1k"
+      ]
+    },
+    {
+      "name": "Hinglish",
+      "languages": [
+        "hinglish"
+      ]
+    },
+    {
+      "name": "Hungarian",
+      "languages": [
+        "hungarian",
+        "hungarian_2k"
+      ]
+    },
+    {
+      "name": "Icelandic",
+      "languages": [
+        "icelandic_1k"
+      ]
+    },
+    {
+      "name": "Indonesian",
+      "languages": [
+        "indonesian",
+        "indonesian_10k",
+        "indonesian_1k"
+      ]
+    },
+    {
+      "name": "Irish",
+      "languages": [
+        "irish"
+      ]
+    },
+    {
+      "name": "Italian",
+      "languages": [
+        "italian",
+        "italian_1k",
+        "italian_280k",
+        "italian_60k",
+        "italian_7k"
+      ]
+    },
+    {
+      "name": "Japanese",
+      "languages": [
+        "japanese_hiragana",
+        "japanese_katakana",
+        "japanese_romaji",
+        "japanese_romaji_1k"
+      ]
+    },
+    {
+      "name": "Jyutping",
+      "languages": [
+        "jyutping"
+      ]
+    },
+    {
+      "name": "Kabyle",
+      "languages": [
+        "kabyle",
+        "kabyle_10k",
+        "kabyle_1k",
+        "kabyle_2k",
+        "kabyle_5k"
+      ]
+    },
+    {
+      "name": "Kannada",
+      "languages": [
+        "kannada"
+      ]
+    },
+    {
+      "name": "Kazakh",
+      "languages": [
+        "kazakh",
+        "kazakh_1k"
+      ]
+    },
+    {
+      "name": "Khmer",
+      "languages": [
+        "khmer"
+      ]
+    },
+    {
+      "name": "Klingon",
+      "languages": [
+        "klingon",
+        "klingon_1k"
+      ]
+    },
+    {
+      "name": "Korean",
+      "languages": [
+        "korean",
+        "korean_1k",
+        "korean_5k"
+      ]
+    },
+    {
+      "name": "Kurdish",
+      "languages": [
+        "kurdish_central",
+        "kurdish_central_2k",
+        "kurdish_central_4k"
+      ]
+    },
+    {
+      "name": "Kyrgyz",
+      "languages": [
+        "kyrgyz",
+        "kyrgyz_1k"
+      ]
+    },
+    {
+      "name": "Latin",
+      "languages": [
+        "latin"
+      ]
+    },
+    {
+      "name": "Latvian",
+      "languages": [
+        "latvian",
+        "latvian_1k"
+      ]
+    },
+    {
+      "name": "Lithuanian",
+      "languages": [
+        "lithuanian",
+        "lithuanian_1k",
+        "lithuanian_3k"
+      ]
+    },
+    {
+      "name": "Lojban",
+      "languages": [
+        "lojban_cmavo",
+        "lojban_gismu"
+      ]
+    },
+    {
+      "name": "Macedonian",
+      "languages": [
+        "macedonian",
+        "macedonian_10k",
+        "macedonian_1k",
+        "macedonian_75k"
+      ]
+    },
+    {
+      "name": "Malagasy",
+      "languages": [
+        "malagasy",
+        "malagasy_1k"
+      ]
+    },
+    {
+      "name": "Malay",
+      "languages": [
+        "malay",
+        "malay_1k"
+      ]
+    },
+    {
+      "name": "Malayalam",
+      "languages": [
+        "malayalam"
+      ]
+    },
+    {
+      "name": "Maltese",
+      "languages": [
+        "maltese",
+        "maltese_1k"
+      ]
+    },
+    {
+      "name": "Maori",
+      "languages": [
+        "maori_1k"
+      ]
+    },
+    {
+      "name": "Marathi",
+      "languages": [
+        "marathi"
+      ]
+    },
+    {
+      "name": "Mongolian",
+      "languages": [
+        "mongolian",
+        "mongolian_10k"
+      ]
+    },
+    {
+      "name": "Myanmar",
+      "languages": [
+        "myanmar_burmese"
+      ]
+    },
+    {
+      "name": "Nepali",
+      "languages": [
+        "nepali",
+        "nepali_1k",
+        "nepali_romanized"
+      ]
+    },
+    {
+      "name": "Norwegian",
+      "languages": [
+        "norwegian_bokmal",
+        "norwegian_bokmal_10k",
+        "norwegian_bokmal_150k",
+        "norwegian_bokmal_1k",
+        "norwegian_bokmal_5k",
+        "norwegian_bokmal_600k",
+        "norwegian_nynorsk",
+        "norwegian_nynorsk_100k",
+        "norwegian_nynorsk_10k",
+        "norwegian_nynorsk_1k",
+        "norwegian_nynorsk_400k",
+        "norwegian_nynorsk_5k"
+      ]
+    },
+    {
+      "name": "Occitan",
+      "languages": [
+        "occitan",
+        "occitan_10k",
+        "occitan_1k",
+        "occitan_2k",
+        "occitan_5k"
+      ]
+    },
+    {
+      "name": "Oromo",
+      "languages": [
+        "oromo",
+        "oromo_1k",
+        "oromo_5k"
+      ]
+    },
+    {
+      "name": "Pashto",
+      "languages": [
+        "pashto"
+      ]
+    },
+    {
+      "name": "Persian",
+      "languages": [
+        "persian",
+        "persian_1k",
+        "persian_20k",
+        "persian_5k",
+        "persian_romanized"
+      ]
+    },
+    {
+      "name": "Pinyin",
+      "languages": [
+        "pinyin",
+        "pinyin_10k",
+        "pinyin_1k"
+      ]
+    },
+    {
+      "name": "Polish",
+      "languages": [
+        "polish",
+        "polish_10k",
+        "polish_200k",
+        "polish_20k",
+        "polish_2k",
+        "polish_40k",
+        "polish_5k"
+      ]
+    },
+    {
+      "name": "Portuguese",
+      "languages": [
+        "portuguese",
+        "portuguese_1k",
+        "portuguese_320k",
+        "portuguese_3k",
+        "portuguese_550k",
+        "portuguese_5k",
+        "portuguese_acentos_e_cedilha"
+      ]
+    },
+    {
+      "name": "Quenya",
+      "languages": [
+        "quenya"
+      ]
+    },
+    {
+      "name": "Romanian",
+      "languages": [
+        "romanian",
+        "romanian_100k",
+        "romanian_10k",
+        "romanian_1k",
+        "romanian_200k",
+        "romanian_25k",
+        "romanian_50k",
+        "romanian_5k"
+      ]
+    },
+    {
+      "name": "Russian",
+      "languages": [
+        "russian",
+        "russian_10k",
+        "russian_1k",
+        "russian_25k",
+        "russian_375k",
+        "russian_50k",
+        "russian_5k",
+        "russian_abbreviations",
+        "russian_contractions",
+        "russian_contractions_1k"
+      ]
+    },
+    {
+      "name": "Sanskrit",
+      "languages": [
+        "sanskrit",
+        "sanskrit_roman"
+      ]
+    },
+    {
+      "name": "Santali",
+      "languages": [
+        "santali"
+      ]
+    },
+    {
+      "name": "Serbian",
+      "languages": [
+        "serbian",
+        "serbian_10k",
+        "serbian_latin",
+        "serbian_latin_10k"
+      ]
+    },
+    {
+      "name": "Shona",
+      "languages": [
+        "shona",
+        "shona_1k"
+      ]
+    },
+    {
+      "name": "Sinhala",
+      "languages": [
+        "sinhala"
+      ]
+    },
+    {
+      "name": "Slovak",
+      "languages": [
+        "slovak",
+        "slovak_10k",
+        "slovak_1k"
+      ]
+    },
+    {
+      "name": "Slovenian",
+      "languages": [
+        "slovenian",
+        "slovenian_1k",
+        "slovenian_5k"
+      ]
+    },
+    {
+      "name": "Spanish",
+      "languages": [
+        "spanish",
+        "spanish_10k",
+        "spanish_1k",
+        "spanish_650k"
+      ]
+    },
+    {
+      "name": "Special",
+      "languages": [
+        "docker_file",
+        "git",
+        "league_of_legends",
+        "lorem_ipsum",
+        "pig_latin",
+        "twitch_emotes",
+        "typing_of_the_dead",
+        "wordle",
+        "wordle_1k"
+      ]
+    },
+    {
+      "name": "Swahili",
+      "languages": [
+        "swahili_1k"
+      ]
+    },
+    {
+      "name": "Swedish",
+      "languages": [
+        "swedish",
+        "swedish_1k",
+        "swedish_diacritics"
+      ]
+    },
+    {
+      "name": "Swiss",
+      "languages": [
+        "swiss_german",
+        "swiss_german_1k",
+        "swiss_german_2k"
+      ]
+    },
+    {
+      "name": "Tamil",
+      "languages": [
+        "tamil",
+        "tamil_1k",
+        "tamil_old"
+      ]
+    },
+    {
+      "name": "Tanglish",
+      "languages": [
+        "tanglish"
+      ]
+    },
+    {
+      "name": "Tatar",
+      "languages": [
+        "tatar",
+        "tatar_1k",
+        "tatar_5k",
+        "tatar_9k",
+        "tatar_crimean",
+        "tatar_crimean_10k",
+        "tatar_crimean_15k",
+        "tatar_crimean_1k",
+        "tatar_crimean_5k",
+        "tatar_crimean_cyrillic",
+        "tatar_crimean_cyrillic_10k",
+        "tatar_crimean_cyrillic_15k",
+        "tatar_crimean_cyrillic_1k",
+        "tatar_crimean_cyrillic_5k"
+      ]
+    },
+    {
+      "name": "Telugu",
+      "languages": [
+        "telugu",
+        "telugu_1k"
+      ]
+    },
+    {
+      "name": "Thai",
+      "languages": [
+        "thai",
+        "thai_10k",
+        "thai_1k",
+        "thai_20k",
+        "thai_50k",
+        "thai_5k",
+        "thai_60k"
+      ]
+    },
+    {
+      "name": "Tibetan",
+      "languages": [
+        "tibetan",
+        "tibetan_1k"
+      ]
+    },
+    {
+      "name": "Toki",
+      "languages": [
+        "toki_pona",
+        "toki_pona_ku_lili",
+        "toki_pona_ku_suli"
+      ]
+    },
+    {
+      "name": "Turkish",
+      "languages": [
+        "turkish",
+        "turkish_1k",
+        "turkish_5k"
+      ]
+    },
+    {
+      "name": "Udmurt",
+      "languages": [
+        "udmurt"
+      ]
+    },
+    {
+      "name": "Ukrainian",
+      "languages": [
+        "ukrainian",
+        "ukrainian_10k",
+        "ukrainian_1k",
+        "ukrainian_50k",
+        "ukrainian_endings",
+        "ukrainian_latynka",
+        "ukrainian_latynka_10k",
+        "ukrainian_latynka_1k",
+        "ukrainian_latynka_50k",
+        "ukrainian_latynka_endings"
+      ]
+    },
+    {
+      "name": "Urdu",
+      "languages": [
+        "urdu",
+        "urdu_1k",
+        "urdu_5k"
+      ]
+    },
+    {
+      "name": "Urdish",
+      "languages": [
+        "urdish"
+      ]
+    },
+    {
+      "name": "Uzbek",
+      "languages": [
+        "uzbek",
+        "uzbek_1k",
+        "uzbek_70k"
+      ]
+    },
+    {
+      "name": "Vietnamese",
+      "languages": [
+        "vietnamese",
+        "vietnamese_1k",
+        "vietnamese_5k"
+      ]
+    },
+    {
+      "name": "Welsh",
+      "languages": [
+        "welsh",
+        "welsh_1k"
+      ]
+    },
+    {
+      "name": "Xhosa",
+      "languages": [
+        "xhosa",
+        "xhosa_3k"
+      ]
+    },
+    {
+      "name": "Yiddish",
+      "languages": [
+        "yiddish"
+      ]
+    },
+    {
+      "name": "Yoruba",
+      "languages": [
+        "yoruba_1k"
+      ]
+    },
+    {
+      "name": "Zulu",
+      "languages": [
+        "zulu"
+      ]
+    }
+  ]

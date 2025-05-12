@@ -1046,7 +1046,7 @@ function fetchCorpusList() {
   // Fetch the corpus list from the MonkeyType repository.
   // This fetches the corpus list from the MonkeyType repository to populate the corpus selector.
   fetch(
-    "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/_groups.json",
+    "_groups.json",
   )
     .then((response) => response.json())
     .then((data) => {
