@@ -250,7 +250,8 @@ function keydownHandler(e) {
 
   // Check if the control key is pressed and the backspace key is pressed.
   // This checks if the user is trying to reset the typing statistics.
-  if (e.ctrlKey && e.key === "Backspace") {
+  // Support both Ctrl+Backspace (Windows/Linux) and Option/Alt+Backspace (macOS)
+  if ((e.ctrlKey || e.altKey) && e.key === "Backspace") {
     // Prevent the default behavior of the backspace key.
     // This prevents the browser from navigating back when the backspace key is pressed.
     e.preventDefault();
