@@ -606,6 +606,18 @@ function next_word() {
 // Function to save the data.
 // This function is used to save the typing statistics data to local storage.
 function save() {
+  // Check if there's a last_corpus in localStorage that should be preserved
+  let preserved_last_corpus = null;
+  try {
+    const existing_data = JSON.parse(localStorage.data || "{}");
+    if (existing_data.last_corpus && !data.last_corpus) {
+      preserved_last_corpus = existing_data.last_corpus;
+      data.last_corpus = preserved_last_corpus;
+    }
+  } catch (e) {
+    // Ignore errors reading existing data
+  }
+
   // Save the data to local storage.
   // This saves the data to local storage to persist the typing statistics.
   localStorage.data = JSON.stringify(data);
@@ -620,8 +632,6 @@ function load() {
     // Get the data from local storage.
     // This gets the data from local storage to restore the typing statistics.
     const data_temp = JSON.parse(localStorage.data);
-    // Check if the data is valid.
-    // This checks if the data is valid to ensure that it can be used to restore the typing statistics.
     if (
       data_temp &&
       data_temp.hasOwnProperty("version") &&
@@ -1042,49 +1052,152 @@ function word_to_ngrams(word, ngram_size) {
 
 // Function to fetch the corpus list from the MonkeyType repository.
 // This function is used to fetch the corpus list from the MonkeyType repository to populate the corpus selector.
-function fetchCorpusList() {
-  // Fetch the corpus list from the MonkeyType repository.
-  // This fetches the corpus list from the MonkeyType repository to populate the corpus selector.
-  fetch(
-    "https://raw.githubusercontent.com/monkeytypegame/monkeytype/refs/heads/master/frontend/static/languages/_groups.json",
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      // Populate the corpus selector with the corpus list.
-      // This populates the corpus selector with the corpus list to allow the user to select a corpus.
-      const corpus_selector = document.getElementById("corpus-selector");
-      // Add a default "Select a corpus" option to the corpus selector.
-      // This option will be disabled and selected by default, prompting the user to select a corpus.
-      const defaultOption = document.createElement("option");
-      defaultOption.value = "";
-      defaultOption.text = "Select a corpus";
-      defaultOption.disabled = true;
-      defaultOption.selected = true;
-      corpus_selector.appendChild(defaultOption);
-      data.forEach((group) => {
-        const optionGroup = document.createElement("optgroup");
-        optionGroup.label = group.name;
-        group.languages.forEach((language) => {
-          const option = document.createElement("option");
-          option.value = language;
-          option.text = language;
-          optionGroup.appendChild(option);
-        });
-        corpus_selector.appendChild(optionGroup);
-      });
-      // Add an event listener to the corpus selector element.
-      // This event listener listens for changes to the selected corpus and updates the corpus variable.
-      corpus_selector.addEventListener("change", function () {
-        const corpus_name = corpus_selector.value;
-        // Check if the selected corpus is not undefined and not the default option.
-        // This checks if the selected corpus is not undefined and not the default option to load it.
-        if (corpus_name && corpus_name !== "") {
-          // Load the selected corpus.
-          // This loads the selected corpus to update the typing practice session.
-          fetchCorpus(corpus_name);
-        }
-      });
+async function fetchCorpusList() {
+  try {
+    // Fetch all language files from MonkeyType
+    const response = await fetch("https://api.github.com/repos/monkeytypegame/monkeytype/contents/frontend/static/languages?ref=master");
+    const files = await response.json();
+
+    // Get only JSON files (language files)
+    const languageFiles = files.filter(file => file.name.endsWith('.json'));
+
+    // Group languages by their base name (e.g., english, english_1k, english_10k -> english)
+    const languageGroups = {};
+    const baseNames = new Set();
+
+    // First pass: extract base names without downloading any files
+    for (const file of languageFiles) {
+      const langName = file.name.replace('.json', '');
+
+      // Extract base name (remove suffixes like _1k, _10k, etc.)
+      let baseName = langName;
+      const match = langName.match(/^(.+?)(?:_\d+k|_\d+)?$/);
+      if (match) {
+        baseName = match[1];
+      }
+
+      baseNames.add(baseName);
+    }
+
+    // Create groups intelligently based on naming patterns
+    // Only download files when we can't determine the group from the name
+    const baseNameArray = Array.from(baseNames);
+
+    // Initialize common groups
+    languageGroups['Code'] = { name: 'Code', languages: [] };
+    languageGroups['English'] = { name: 'English', languages: [] };
+
+    // Second pass: categorize each language file
+    for (const file of languageFiles) {
+      const langName = file.name.replace('.json', '');
+
+      // Extract base name
+      let baseName = langName;
+      const match = langName.match(/^(.+?)(?:_\d+k|_\d+)?$/);
+      if (match) {
+        baseName = match[1];
+      }
+
+      // Categorize based on patterns without downloading files
+      if (baseName.startsWith('code_')) {
+        languageGroups['Code'].languages.push(langName);
+      } else if (baseName === 'english') {
+        languageGroups['English'].languages.push(langName);
+      } else if (!languageGroups[baseName]) {
+        // For unknown languages, create a group with formatted name
+        // Only download if it's the first occurrence of this language type
+        const groupName = baseName.charAt(0).toUpperCase() + baseName.slice(1).replace(/_/g, ' ');
+        languageGroups[baseName] = {
+          name: groupName,
+          languages: [langName]
+        };
+      } else {
+        languageGroups[baseName].languages.push(langName);
+      }
+    }
+
+    // Convert to array format
+    const groupedLanguages = Object.values(languageGroups);
+
+    // Sort languages within each group
+    groupedLanguages.forEach(group => {
+      group.languages.sort();
     });
+
+    // Sort groups alphabetically, but put English and Code first
+    groupedLanguages.sort((a, b) => {
+      if (a.name === 'English') return -1;
+      if (b.name === 'English') return 1;
+      if (a.name === 'Code') return -1;
+      if (b.name === 'Code') return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    // Populate the corpus selector with the grouped languages
+    const corpus_selector = document.getElementById("corpus-selector");
+
+    // Clear existing options
+    corpus_selector.innerHTML = "";
+
+    // Add a default "Select a corpus" option to the corpus selector.
+    // This option will be disabled and selected by default, prompting the user to select a corpus.
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.text = "Select a corpus";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    corpus_selector.appendChild(defaultOption);
+
+    // Iterate through the grouped languages and add each language to the corpus selector.
+    // This adds each language to the corpus selector to allow the user to select a corpus.
+    groupedLanguages.forEach((group) => {
+      // Create an option group element for the language group.
+      // This creates an option group element for the language group to group related languages together.
+      const optionGroup = document.createElement("optgroup");
+      optionGroup.label = group.name;
+
+      // Iterate through the languages in the group and add each language to the option group.
+      // This adds each language to the option group to allow the user to select a language from the group.
+      group.languages.forEach((language) => {
+        // Create an option element for the language.
+        // This creates an option element for the language to add to the option group.
+        const option = document.createElement("option");
+        option.value = language;
+        option.text = language
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+        // Add the option element to the option group.
+        // This adds the option element to the option group to add the language to the corpus selector.
+        optionGroup.appendChild(option);
+      });
+
+      // Add the option group to the corpus selector.
+      // This adds the option group to the corpus selector to add the language group to the corpus selector.
+      corpus_selector.appendChild(optionGroup);
+    });
+
+    // Add an event listener to the corpus selector element.
+    // This event listener listens for changes to the selected corpus and updates the corpus variable.
+    corpus_selector.addEventListener("change", function () {
+      const corpus_name = corpus_selector.value;
+      // Check if the selected corpus is not undefined and not the default option.
+      // This checks if the selected corpus is not undefined and not the default option to load it.
+      if (corpus_name && corpus_name !== "") {
+        // Update the data object with the selected corpus immediately
+        // This ensures the selection is saved even before the corpus is fetched
+        data.last_corpus = corpus_name;
+        // Load the selected corpus.
+        // This loads the selected corpus to update the typing practice session.
+        fetchCorpus(corpus_name);
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching corpus list:", error);
+    // Fallback: display error message to user
+    const corpus_selector = document.getElementById("corpus-selector");
+    corpus_selector.innerHTML = '<option value="">Error loading languages</option>';
+  }
 }
 
 // Function to fetch a corpus from the MonkeyType repository.
@@ -1106,6 +1219,11 @@ function fetchCorpus(corpus_name) {
       // Update the corpus.
       // This updates the corpus to reflect the new data.
       corpus = data.words;
+      // Save the last used corpus to the data object
+      // This saves the last used corpus to remember it for future sessions
+      data.last_corpus = corpus_name;
+      // Update local storage with the new data
+      localStorage.data = JSON.stringify(data);
       // Update the corpus status element.
       // This updates the corpus status element to reflect the success state.
       corpus_status_div.innerText = `${corpus_name} loaded (${corpus.length} words)`;
@@ -1152,9 +1270,7 @@ document.querySelectorAll('input[name="ngram"]').forEach((radio) => {
 
 // Initialize the application.
 // This initializes the application by setting up the event listeners and loading the data.
-$(document).ready(function () {
-  fetchCorpusList();
-
+$(document).ready(async function () {
   // Initialize the confetti instance.
   // This initializes the confetti instance to provide a celebratory effect when a new item is seen.
   confetti = new JSConfetti();
@@ -1173,10 +1289,76 @@ $(document).ready(function () {
   $(document).keypress(keyHandler);
   $(document).keydown(keydownHandler);
   $(document).keyup(keyupHandler);
-  // Initialize the ngram database.
-  // This initializes the ngram database to store the ngrams and their frequencies.
-  initialize_ngram_db(corpus);
-  // Generate a new word for typing practice.
-  // This generates a new word for typing practice to start a new session.
-  next_word();
+
+  // Fetch the corpus list first
+  try {
+    await fetchCorpusList();
+
+    // Wait a tick for the DOM to update
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    const corpus_selector = document.getElementById("corpus-selector");
+    let corpusFound = false;
+
+    // Check if there's a last used corpus in the data
+    if (data.last_corpus) {
+      // Traverse all options in the select (including those in optgroups)
+      const options = corpus_selector.querySelectorAll('option');
+
+      for (const option of options) {
+        if (option.value === data.last_corpus && !option.disabled) {
+          // Found the saved corpus, select it
+          console.log("Found matching option, setting value to:", data.last_corpus);
+          corpus_selector.value = data.last_corpus;
+          corpusFound = true;
+
+          // Debug: log the selector state after setting
+          console.log("Selector value after setting:", corpus_selector.value);
+          console.log("Selected index:", corpus_selector.selectedIndex);
+          console.log("Selected option text:", corpus_selector.options[corpus_selector.selectedIndex]?.text);
+
+          // Check if corpus is already loaded (has words)
+          if (corpus.length > 0) {
+            // Corpus already loaded, just update UI
+            console.log("Corpus already has words, initializing...");
+            const corpus_status_div = document.getElementById("corpus-status");
+            corpus_status_div.innerText = `${data.last_corpus} loaded (${corpus.length} words)`;
+            corpus_status_div.classList.remove("error");
+            initialize_ngram_db(corpus);
+            next_word();
+          } else {
+            // Corpus not loaded, fetch it
+            console.log("Corpus empty, fetching...");
+            fetchCorpus(data.last_corpus);
+          }
+          break;
+        }
+      }
+
+      if (!corpusFound && data.last_corpus) {
+        console.log("Did not find saved corpus in options!");
+      }
+    }
+
+    // If no saved corpus found or corpus not available, load the first available corpus
+    if (!corpusFound) {
+      const options = corpus_selector.querySelectorAll('option:not(:disabled)');
+      if (options.length > 0) {
+        // Skip the first "Select a corpus" option if it exists
+        const firstRealOption = options[0].value === "" ? options[1] : options[0];
+        if (firstRealOption && firstRealOption.value) {
+          // Select the option and set the selector value
+          firstRealOption.selected = true;
+          corpus_selector.value = firstRealOption.value;
+          fetchCorpus(firstRealOption.value);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error initializing:", error);
+    // If corpus list fails to load, still initialize with default corpus
+    const corpus_status_div = document.getElementById("corpus-status");
+    corpus_status_div.innerText = "Error loading language list";
+    corpus_status_div.classList.add("error");
+  }
 });
